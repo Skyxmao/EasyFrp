@@ -1,6 +1,14 @@
 <template>
     <div class="box header">
-            <Button type="primary" @click="modal1 = true"><i class="fa fa-plus"></i>&nbsp;新增服务器</Button>
+            <Dropdown trigger="click">
+                <Button type="primary">
+                    <i class="fa fa-plus"></i>&nbsp;新增服务器&nbsp;&nbsp;<i class="fa fa-caret-down" aria-hidden="true"></i>
+                </Button>
+                <Dropdown-menu slot="list">
+                   <a  @click="modal1 = true"><Dropdown-item>新建</Dropdown-item></a>
+                   <a  @click="modal2 = true"><Dropdown-item>导入</Dropdown-item></a>
+                </Dropdown-menu>
+            </Dropdown>
             <Modal
                 v-model="modal1"
                 title="新增服务器"
@@ -29,6 +37,23 @@ server_port=1234"></Input>
                     </Collapse>
                 </Form>
             </Modal>
+
+            <Modal
+                v-model="modal2"
+                title="导入服务器"
+                @on-ok="importServer"
+                @on-cancel="cancel">
+                <Form  :label-width="80">
+                    <Form-item label="服务器名称" prop="serverName">
+                        <Input v-model="importName" placeholder="请输入服务器名称"></Input>
+                    </Form-item>
+                    <Alert>直接将frp的frpc.ini粘贴到下方</Alert>
+                    <Input v-model="importData" type="textarea" :rows="20" placeholder="请输入...
+格式:
+server_addr=123
+server_port=1234"></Input>
+                </Form>
+            </Modal>  
     </div>
 </template>
 
@@ -40,12 +65,15 @@ export default {
     data(){
         return {
             modal1: false,
+            modal2: false,
             formValidate: {
                 serverPort: '',
                 serverAddr: '',
                 serverName: '',
                 serverExtend:'',
-            }
+            },
+            importData:"",
+            importName:"",
         }
     },
     methods: {
@@ -65,6 +93,13 @@ export default {
         },
         cancel () {
 
+        },
+        importServer(){
+            pubsub.publish("importConfig",{
+                serverName:this.importName,
+                serverConfig:this.importData
+            })
+            this.$Message.info("添加成功!");
         }
     }
 }

@@ -16,6 +16,10 @@ module.exports.init_events=function(){
             fs.writeFileSync(path,JSON.stringify(element));
         });
     })
+    ipcMain.on("importConfig",(event,arg)=>{
+        console.log("*******writeConfig*********");
+        console.log(arg);
+    })
     ipcMain.on("deleteConfig",(event,uuid)=>{
         let path = getAppPath() + "/" + uuid + ".js";
         fs.unlink(path,function(e){
